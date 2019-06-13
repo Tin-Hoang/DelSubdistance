@@ -107,25 +107,30 @@ unsigned int DelSub_distance(const int64_t *a, const unsigned int asize, const i
     unsigned int const *asizep, *bsizep;
     if(asize < bsize) ap = b, bp = a, asizep = &bsize, bsizep = &asize;
     else ap = a, bp = b, asizep = &asize, bsizep = &bsize;
-    // 必要な配列サイズを調べる
-    size_t vsize = ((*asizep - 1) >> 6) + 1;  // 64までは1, 128までは2, ...
-    // bit-parallelでできそうな限界を超えたら要素数の小さい方をaとする。
-    if(vsize > 10) {
-        int64_t const *_ = ap;
-        unsigned int const *__ = asizep;
-        ap = bp, bp = _, asizep = bsizep, bsizep = __;
-        vsize = ((*asizep - 1) >> 6) + 1;
-    }
 
-    if(vsize == 1) return DelSub_distance_map_<1>(ap, *asizep, bp, *bsizep);
-    else if(vsize == 2) return DelSub_distance_map_<2>(ap, *asizep, bp, *bsizep);
-    else if(vsize == 3) return DelSub_distance_map_<3>(ap, *asizep, bp, *bsizep);
-    else if(vsize == 4) return DelSub_distance_map_<4>(ap, *asizep, bp, *bsizep);
-    else if(vsize == 5) return DelSub_distance_map_<5>(ap, *asizep, bp, *bsizep);
-    else if(vsize == 6) return DelSub_distance_map_<6>(ap, *asizep, bp, *bsizep);
-    else if(vsize == 7) return DelSub_distance_map_<7>(ap, *asizep, bp, *bsizep);
-    else if(vsize == 8) return DelSub_distance_map_<8>(ap, *asizep, bp, *bsizep);
-    else if(vsize == 9) return DelSub_distance_map_<9>(ap, *asizep, bp, *bsizep);
-    else if(vsize == 10) return DelSub_distance_map_<10>(ap, *asizep, bp, *bsizep);
+    // TODO: EDIT paper http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.19.7158&rep=rep1&type=pdf for DelSub only
+
+    // 必要な配列サイズを調べる
+    // size_t vsize = ((*asizep - 1) >> 6) + 1;  // 64までは1, 128までは2, ...
+    // bit-parallelでできそうな限界を超えたら要素数の小さい方をaとする。
+    // if(vsize > 10) {
+    //     int64_t const *_ = ap;
+    //     unsigned int const *__ = asizep;
+    //     ap = bp, bp = _, asizep = bsizep, bsizep = __;
+    //     vsize = ((*asizep - 1) >> 6) + 1;
+    // }
+
+    // if(vsize == 1) return DelSub_distance_map_<1>(ap, *asizep, bp, *bsizep);
+    // else if(vsize == 2) return DelSub_distance_map_<2>(ap, *asizep, bp, *bsizep);
+    // else if(vsize == 3) return DelSub_distance_map_<3>(ap, *asizep, bp, *bsizep);
+    // else if(vsize == 4) return DelSub_distance_map_<4>(ap, *asizep, bp, *bsizep);
+    // else if(vsize == 5) return DelSub_distance_map_<5>(ap, *asizep, bp, *bsizep);
+    // else if(vsize == 6) return DelSub_distance_map_<6>(ap, *asizep, bp, *bsizep);
+    // else if(vsize == 7) return DelSub_distance_map_<7>(ap, *asizep, bp, *bsizep);
+    // else if(vsize == 8) return DelSub_distance_map_<8>(ap, *asizep, bp, *bsizep);
+    // else if(vsize == 9) return DelSub_distance_map_<9>(ap, *asizep, bp, *bsizep);
+    // else if(vsize == 10) return DelSub_distance_map_<10>(ap, *asizep, bp, *bsizep);
+
+    // Only Dynamic Programming for now
     return DelSub_distance_dp<int64_t>(ap, *asizep, bp, *bsizep);  // dynamic programmingに任せる
 }
