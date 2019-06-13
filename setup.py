@@ -21,27 +21,25 @@ except:
     from distutils import setup, Extension
 # for development
 # from Cython.Build import cythonize
-# ext_modules = cythonize('editdistance/bycython.pyx')
+# ext_modules = cythonize('DelSubdistance/bycython.pyx')
 
 ext_modules = [
     Extension(
-        'editdistance.bycython',
-        ['editdistance/_editdistance.cpp', 'editdistance/bycython.cpp'],
-        include_dirs=['./editdistance'],
+        'DelSubdistance.bycython',
+        ['DelSubdistance/_DelSubdistance.cpp', 'DelSubdistance/bycython.cpp'],
+        include_dirs=['./DelSubdistance'],
     )
 ]
 
 setup(
-    name="editdistance",
-    version='0.5.3',
-    description="Fast implementation of the edit distance(Levenshtein distance)",
+    name="DelSubdistance",
+    version='1.0.0',
+    description="Fast implementation of the Levenshtein distance with only Deletion and Substitution errors",
     long_description='',
-    author='Hiroyuki Tanaka',
-    author_email='aflc0x@gmail.com',
-    url='https://www.github.com/aflc/editdistance',
+    url='https://www.github.com/Tin-Hoang/DelSubdistance',
     ext_modules=ext_modules,
-    packages=['editdistance'],
-    package_data={'editdistance': ['_editdistance.h', 'def.h']},
+    packages=['DelSubdistance'],
+    package_data={'DelSubdistance': ['_DelSubdistance.h', 'def.h']},
     classifiers=[
         'License :: OSI Approved :: MIT License',
         'Programming Language :: Python',

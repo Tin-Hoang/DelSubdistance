@@ -22,12 +22,12 @@
 #include <bitset>
 #include <algorithm>
 
-#include "./_editdistance.h"
+#include "./_DelSubdistance.h"
 
 using namespace std;
 
 template<typename T, typename TVALUE>
-unsigned int edit_distance_bpv(T &cmap, int64_t const *vec, size_t const &vecsize, unsigned int const &tmax, unsigned int const &tlen) {
+unsigned int DelSub_distance_bpv(T &cmap, int64_t const *vec, size_t const &vecsize, unsigned int const &tmax, unsigned int const &tlen) {
     int D = tmax * 64 + tlen;
     TVALUE D0, HP, HN, VP, VN;
     uint64_t top = (1LL << (tlen - 1));  // 末尾のvectorに適用
@@ -62,14 +62,15 @@ unsigned int edit_distance_bpv(T &cmap, int64_t const *vec, size_t const &vecsiz
 
 /// c.f. http://handasse.blogspot.com/2009/04/c_29.html
 template<typename T>
-unsigned int edit_distance_dp(T const *str1, size_t const size1, T const *str2, size_t const size2) {
+unsigned int DelSub_distance_dp(T const *str1, size_t const size1, T const *str2, size_t const size2) {
     // vectorより固定長配列の方が速いが、文字列が長い時の保険でのみ呼ばれるのでサイズを決め打ちできない
     vector< vector<uint32_t> > d(size1 + 1, vector<uint32_t>(size2 + 1));
     for (int i = 0; i < size1 + 1; i++) d[i][0] = i;
     for (int i = 0; i < size2 + 1; i++) d[0][i] = i;
     for (int i = 1; i < size1 + 1; i++) {
         for (int j = 1; j < size2 + 1; j++) {
-            d[i][j] = min(min(d[i-1][j], d[i][j-1]) + 1, d[i-1][j-1] + (str1[i-1] == str2[j-1] ? 0 : 1));
+            // Only Deletion and Substitution
+            d[i][j] = min(d[i-1][j] + 1, d[i-1][j-1] + (str1[i-1] == str2[j-1] ? 0 : 1));
         }
     }
     return d[size1][size2];
@@ -85,7 +86,7 @@ struct varr {
 
 
 template<size_t N>
-unsigned int edit_distance_map_(int64_t const *a, size_t const asize, int64_t const *b, size_t const bsize) {
+unsigned int DelSub_distance_map_(int64_t const *a, size_t const asize, int64_t const *b, size_t const bsize) {
     typedef map<int64_t, varr<N> > cmap_v;
     cmap_v cmap;
     unsigned int tmax = (asize - 1) >> 6;
@@ -94,11 +95,11 @@ unsigned int edit_distance_map_(int64_t const *a, size_t const asize, int64_t co
         for(size_t j = 0; j < 64; ++j) cmap[a[i * 64 + j]][i] |= (1LL << j);
     }
     for(size_t i = 0; i < tlen; ++i) cmap[a[tmax * 64 + i]][tmax] |= (1LL << i);
-    return edit_distance_bpv<cmap_v, typename cmap_v::mapped_type>(cmap, b, bsize, tmax, tlen);
+    return DelSub_distance_bpv<cmap_v, typename cmap_v::mapped_type>(cmap, b, bsize, tmax, tlen);
 }
 
 
-unsigned int edit_distance(const int64_t *a, const unsigned int asize, const int64_t *b, const unsigned int bsize) {
+unsigned int DelSub_distance(const int64_t *a, const unsigned int asize, const int64_t *b, const unsigned int bsize) {
     if(asize == 0) return bsize;
     else if(bsize == 0) return asize;
     // 要素数の大きいほうがa
@@ -116,15 +117,15 @@ unsigned int edit_distance(const int64_t *a, const unsigned int asize, const int
         vsize = ((*asizep - 1) >> 6) + 1;
     }
 
-    if(vsize == 1) return edit_distance_map_<1>(ap, *asizep, bp, *bsizep);
-    else if(vsize == 2) return edit_distance_map_<2>(ap, *asizep, bp, *bsizep);
-    else if(vsize == 3) return edit_distance_map_<3>(ap, *asizep, bp, *bsizep);
-    else if(vsize == 4) return edit_distance_map_<4>(ap, *asizep, bp, *bsizep);
-    else if(vsize == 5) return edit_distance_map_<5>(ap, *asizep, bp, *bsizep);
-    else if(vsize == 6) return edit_distance_map_<6>(ap, *asizep, bp, *bsizep);
-    else if(vsize == 7) return edit_distance_map_<7>(ap, *asizep, bp, *bsizep);
-    else if(vsize == 8) return edit_distance_map_<8>(ap, *asizep, bp, *bsizep);
-    else if(vsize == 9) return edit_distance_map_<9>(ap, *asizep, bp, *bsizep);
-    else if(vsize == 10) return edit_distance_map_<10>(ap, *asizep, bp, *bsizep);
-    return edit_distance_dp<int64_t>(ap, *asizep, bp, *bsizep);  // dynamic programmingに任せる
+    if(vsize == 1) return DelSub_distance_map_<1>(ap, *asizep, bp, *bsizep);
+    else if(vsize == 2) return DelSub_distance_map_<2>(ap, *asizep, bp, *bsizep);
+    else if(vsize == 3) return DelSub_distance_map_<3>(ap, *asizep, bp, *bsizep);
+    else if(vsize == 4) return DelSub_distance_map_<4>(ap, *asizep, bp, *bsizep);
+    else if(vsize == 5) return DelSub_distance_map_<5>(ap, *asizep, bp, *bsizep);
+    else if(vsize == 6) return DelSub_distance_map_<6>(ap, *asizep, bp, *bsizep);
+    else if(vsize == 7) return DelSub_distance_map_<7>(ap, *asizep, bp, *bsizep);
+    else if(vsize == 8) return DelSub_distance_map_<8>(ap, *asizep, bp, *bsizep);
+    else if(vsize == 9) return DelSub_distance_map_<9>(ap, *asizep, bp, *bsizep);
+    else if(vsize == 10) return DelSub_distance_map_<10>(ap, *asizep, bp, *bsizep);
+    return DelSub_distance_dp<int64_t>(ap, *asizep, bp, *bsizep);  // dynamic programmingに任せる
 }
